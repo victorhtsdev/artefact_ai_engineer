@@ -1,15 +1,12 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TaskList } from "@/components/task-list";
-import { TaskListPlain } from "@/components/task-list-plain";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
-import { parseListMode, parseListRenderer, TASK_LIST_INPUT, taskListOptions } from "@/trpc/task-list-options";
+import { parseListMode, TASK_LIST_INPUT, taskListOptions } from "@/trpc/task-list-options";
 
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ mode?: string; list?: string }> }) {
-  const params = await searchParams;
-  const mode = parseListMode(params.mode);
-  // ?list=plain keeps the non-virtualized list available as the baseline of the performance test (test/README.md).
-  const renderer = parseListRenderer(params.list);
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
+  const { mode: modeParam } = await searchParams;
+  const mode = parseListMode(modeParam);
   const t = await getTranslations();
 
   // The first page is fetched on the server, so the list is already in the HTML (SSR).
@@ -38,7 +35,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </Link>
         </div>
 
-        {renderer === "plain" ? <TaskListPlain mode={mode} /> : <TaskList mode={mode} />}
+        <TaskList mode={mode} />
       </main>
     </HydrateClient>
   );

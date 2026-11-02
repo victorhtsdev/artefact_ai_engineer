@@ -12,7 +12,9 @@ const SEEDED_TASKS = 25;
 const VIEWPORT = { width: 1280, height: 800 };
 const RESULTS_DIR = "bench-results";
 
-const approaches = process.argv.length > 2 ? process.argv.slice(2) : ["plain", "virtual"];
+// The non-virtualized "plain" list was removed from the app after the comparison in test/README.md.
+// To rerun it, check out the commit before "Remove the non-virtualized list".
+const approaches = ["virtual"];
 
 const WINDOW_COLUMNS = [
   { label: "time", width: 6 },
@@ -79,7 +81,7 @@ async function runApproach(browser, approach) {
     } catch {}
   });
 
-  await page.goto(`${BASE_URL}/?mode=generate&list=${approach}`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE_URL}/?mode=generate`, { waitUntil: "networkidle" });
   await page.locator("article").first().waitFor();
 
   const windows = [];

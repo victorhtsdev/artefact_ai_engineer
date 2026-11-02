@@ -50,8 +50,7 @@ Testando a aplicação no navegador, o desenvolvedor notou que, segurando **Page
 
 ```bash
 npx playwright install chromium      # só na primeira vez
-npm run test:perf                    # todas as abordagens (~2,5 min)
-npm run test:perf -- virtual         # só uma
+npm run test:perf                    # lista virtualizada (~1 min)
 ```
 
 Cada janela de 10 s aparece no terminal enquanto o teste roda; no fim sai uma tabela comparativa, as tabelas em markdown usadas abaixo e os dados brutos em `bench-results/` (não versionado). Duração e janela são configuráveis: `BENCH_DURATION_MS`, `BENCH_WINDOW_MS`.
@@ -61,7 +60,7 @@ Cada janela de 10 s aparece no terminal enquanto o teste roda; no fim sai uma ta
 Benchmark automatizado em `test/performance/scroll-benchmark.mjs`.
 
 - Chromium headless (Playwright), janela de 1280×800.
-- Abre `/?mode=generate&list=<abordagem>` e pressiona **Page Down a cada 30 ms durante 60 s**.
+- Abre `/?mode=generate` e pressiona **Page Down a cada 30 ms durante 60 s**.
 - Antes de cada abordagem o container é reiniciado → todas começam com as mesmas 25 tarefas de exemplo.
 - Amostra a cada 10 s:
 
@@ -166,7 +165,7 @@ Só as tarefas visíveis + 5 de margem ficam no DOM (`useWindowVirtualizer`, alt
 
 ### Decisão
 
-**Adotada a abordagem B — virtualização (`@tanstack/react-virtual`).** É a lista padrão da aplicação; a abordagem A continua disponível em `?list=plain` apenas como linha de base deste teste.
+**Adotada a abordagem B — virtualização (`@tanstack/react-virtual`).** É a lista da aplicação. A abordagem A foi removida do código depois desta comparação; para reproduzi-la, use o commit anterior a "Remove the non-virtualized list".
 
 Motivos, pelos dados:
 
