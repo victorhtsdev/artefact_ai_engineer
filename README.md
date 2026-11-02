@@ -1,26 +1,26 @@
-# Gerenciador de Tarefas
+# Task Manager
 
-CRUD de tarefas com **Next.js 15 (App Router)** e **tRPC v11**, com armazenamento em memória, listagem renderizada no servidor (SSR), formulário com validação e interface em português e inglês. Inclui um estudo de performance da rolagem, com medições no servidor e no navegador ([ver abaixo](#estudo-de-performance-da-rolagem)).
+Task CRUD built with **Next.js 15 (App Router)** and **tRPC v11**: in-memory storage, server-rendered task list (SSR), form validation and a Portuguese/English interface. It also includes a scroll performance study, with measurements on the server and in the browser ([see below](#scroll-performance-study)).
 
-![Lista de tarefas](docs/screenshots/01-lista.png)
+![Task list](docs/screenshots/01-lista.png)
 
-## Como executar
+## Running
 
-### Com Docker (recomendado)
+### With Docker (recommended)
 
-Pré-requisito: Docker com Docker Compose.
+Requirement: Docker with Docker Compose.
 
 ```bash
 docker compose up -d --build
 ```
 
-Acesse **http://localhost:3000**. Para parar: `docker compose down`.
+Open **http://localhost:3000**. To stop: `docker compose down`.
 
-O app sobe com 25 tarefas de exemplo. Os dados ficam só em memória e **não são persistidos**: reiniciar o container apaga tudo e recria os exemplos.
+The app starts with 25 sample tasks. Data lives in memory only and is **not persisted**: restarting the container wipes everything and recreates the samples.
 
-### Sem Docker (desenvolvimento)
+### Without Docker (development)
 
-Pré-requisito: Node.js 22.
+Requirement: Node.js 22.
 
 ```bash
 npm install
@@ -28,110 +28,112 @@ SEED_DEMO_DATA=true npm run dev                 # bash
 $env:SEED_DEMO_DATA="true"; npm run dev         # PowerShell
 ```
 
-### Variáveis de ambiente
+### Environment variables
 
-Já configuradas no `docker-compose.yml`:
+Already set in `docker-compose.yml`:
 
-| Variável | Valor no Compose | Para que serve |
+| Variable | Compose value | Purpose |
 |---|---|---|
-| `SEED_DEMO_DATA` | `true` | Cria 25 tarefas de exemplo ao iniciar |
-| `METRICS_INTERVAL_MS` | `10000` | Intervalo do resumo de métricas no log |
+| `SEED_DEMO_DATA` | `true` | Creates 25 sample tasks on startup |
+| `METRICS_INTERVAL_MS` | `10000` | Interval of the metrics summary in the log |
 
-## Funcionalidades
+## Features
 
 | | |
 |---|---|
-| **Listagem com SSR**: a primeira página já vem no HTML | **Validação** no cliente e no servidor, com mensagem por campo |
-| ![Lista](docs/screenshots/01-lista.png) | ![Validação](docs/screenshots/02-validacao.png) |
-| **Criação** com confirmação; a tarefa nova aparece no topo da lista | **Edição** de título, descrição e status |
-| ![Criação](docs/screenshots/03-criada.png) | ![Edição](docs/screenshots/04-edicao.png) |
-| **Exclusão** com confirmação e aviso de sucesso ou erro | **Tarefa inexistente**: página 404 |
-| ![Exclusão](docs/screenshots/05-excluida.png) | ![Não encontrada](docs/screenshots/08-nao-encontrada.png) |
+| **SSR list**: the first page is already in the HTML | **Validation** on client and server, with a message per field |
+| ![List](docs/screenshots/01-lista.png) | ![Validation](docs/screenshots/02-validacao.png) |
+| **Create** with confirmation; the new task shows up at the top of the list | **Edit** title, description and status |
+| ![Create](docs/screenshots/03-criada.png) | ![Edit](docs/screenshots/04-edicao.png) |
+| **Delete** with confirmation and a success or error notice | **Missing task**: 404 page |
+| ![Delete](docs/screenshots/05-excluida.png) | ![Not found](docs/screenshots/08-nao-encontrada.png) |
 
-A lista mostra primeiro as tarefas criadas ou editadas pelo usuário (a alteração mais recente no topo) e depois as tarefas de exemplo e as geradas pela rolagem, da mais antiga para a mais nova. A interface está em português (padrão) e inglês, com seletor PT | EN no canto superior direito.
+The list shows tasks created or edited by the user first (most recent change on top), then the sample tasks and the ones generated while scrolling, oldest first. The interface is available in Portuguese (default) and English, with a PT | EN switch in the top-right corner. The screenshots show the Portuguese version.
 
-## Infinite scroll (bônus)
+## Infinite scroll (bonus)
 
-A listagem carrega 10 tarefas por vez conforme a página é rolada, atendendo ao bônus de infinite scroll do enunciado. A paginação é por cursor, e a primeira página já vem renderizada pelo servidor.
+The list loads 10 tasks at a time as the page scrolls, covering the infinite scroll bonus. Pagination is cursor-based, and the first page is already rendered by the server.
 
-Para testar a rolagem com volume, existe um modo que cria tarefas no servidor enquanto a página é rolada: `/?mode=generate` (link "Gerar tarefas ao rolar").
+To test scrolling with volume, there is a mode that creates tasks on the server while the page scrolls: `/?mode=generate` (link "Generate tasks on scroll").
 
-| Link "Gerar tarefas ao rolar" | Tarefas sendo criadas durante a rolagem |
+| "Generate tasks on scroll" link | Tasks being created while scrolling |
 |---|---|
-| ![Gerar tarefas ao rolar](docs/screenshots/09-gerar_ao_rolar.png) | ![Modo geração](docs/screenshots/06-modo-geracao.png) |
+| ![Generate tasks on scroll](docs/screenshots/09-gerar_ao_rolar.png) | ![Generate mode](docs/screenshots/06-modo-geracao.png) |
 
-### Estudo de performance da rolagem
+### Scroll performance study
 
-Para verificar se o infinite scroll aguenta volume, criei o modo de geração acima. Testando com ele, notei que a rolagem ficava mais lenta conforme a lista crescia. Em vez de otimizar por intuição, medi onde estava o gargalo:
+To check whether the infinite scroll holds up with volume, I built the generate mode above. Testing with it, I noticed scrolling got slower as the list grew. Instead of optimizing on intuition, I measured where the bottleneck was:
 
-- **Servidor** (`npm run test:stress`): 100 mil tarefas criadas e lidas pela API, com respostas em poucos milissegundos do início ao fim. O servidor não era o gargalo.
-- **Navegador** (`npm run test:perf`): Playwright rolando a página e medindo ritmo, DOM, memória e tempo travado. O gargalo estava aqui: com todas as tarefas no DOM, a página passava a maior parte do tempo travada a partir de ~2 mil tarefas.
+- **Server** (`npm run test:stress`): 100,000 tasks created and read through the API, with responses in a few milliseconds from start to finish. The server was not the bottleneck.
+- **Browser** (`npm run test:perf`): Playwright scrolling the page and measuring pace, DOM size, memory and blocked time. The bottleneck was here: with every task in the DOM, the page spent most of its time blocked from ~2,000 tasks on.
 
-| | Sem virtualização | Com virtualização (adotada) |
+| | Without virtualization | With virtualization (adopted) |
 |---|---|---|
-| Chegar a 10 mil tarefas | não chegou em 5 min (parou em 7.545) | **90 s** |
-| Itens no DOM | milhares | **~18** |
-| Pico de memória do navegador | 430 MB | **58 MB** |
-| Tempo travado (~7 mil tarefas) | 75–88 % | **~0 %** |
+| Reaching 10,000 tasks | did not reach it in 5 min (stopped at 7,545) | **90 s** |
+| Items in the DOM | thousands | **~18** |
+| Peak browser memory | 430 MB | **58 MB** |
+| Blocked time (~7,000 tasks) | 75–88 % | **≤ 11 %** |
 
-A solução foi virtualizar a lista com `@tanstack/react-virtual`, que mantém no DOM só as tarefas visíveis. Metodologia, dados por janela e limitação conhecida estão em [test/README.md](test/README.md).
+The fix was to virtualize the list with `@tanstack/react-virtual`, which keeps only the visible tasks in the DOM. Methodology, per-window data and the known limitation are in [test/README.md](test/README.md).
 
-## Como funciona
+## How it works
 
 ```
-Navegador                                   Servidor (Next.js)
-─────────                                   ──────────────────
-Páginas (React)                             Server Components (SSR)
-  │  React Query (cache)                      │  busca a 1ª página antes de renderizar
+Browser                                     Server (Next.js)
+───────                                     ────────────────
+Pages (React)                               Server Components (SSR)
+  │  React Query (cache)                      │  fetches the 1st page before rendering
   │  tRPC client ──── HTTP /api/trpc ───────▶ │  tRPC router (task.*)
-  │                                           │    ├─ validação (Zod)
-  │                                           │    └─ middleware de métricas
+  │                                           │    ├─ validation (Zod)
+  │                                           │    └─ metrics middleware
   │                                           ▼
-  │                                         Repositório de tarefas
-  │                                           └─ armazenamento em memória (Map)
+  │                                         Task repository
+  │                                           └─ in-memory storage (Map)
 ```
 
-### Fluxo de uma requisição
+### Request flow
 
-1. A página é um **Server Component**: no servidor, ela busca a primeira página de tarefas e entrega o HTML pronto. O cache já vem preenchido para o navegador (hidratação), sem segunda requisição.
-2. No navegador, as ações (criar, editar, excluir, carregar mais) usam o **cliente tRPC** sobre o **React Query**: tipos de ponta a ponta, cache, estados de carregamento e erro.
-3. No servidor, cada procedure valida a entrada com **Zod** (os mesmos schemas do formulário) e chama o **repositório**.
-4. Erros voltam como **códigos** (ex.: `NOT_FOUND`, `titleRequired`); o frontend traduz para o idioma do usuário.
+1. The page is a **Server Component**: on the server it fetches the first page of tasks and delivers ready HTML. The cache arrives prefilled in the browser (hydration), with no second request.
+2. In the browser, actions (create, edit, delete, load more) use the **tRPC client** on top of **React Query**: end-to-end types, caching, loading and error states.
+3. On the server, each procedure validates its input with **Zod** (the same schemas as the form) and calls the **repository**.
+4. Errors come back as **codes** (e.g. `NOT_FOUND`, `titleRequired`); the frontend translates them into the user's language.
 
 ### API (tRPC)
 
-| Procedure | Tipo | Descrição |
+| Procedure | Type | Description |
 |---|---|---|
-| `task.list` | query | Lista paginada por cursor, com ordenação configurável |
-| `task.byId` | query | Busca uma tarefa |
-| `task.create` | mutation | Cria (título obrigatório, até 100 caracteres; descrição opcional, até 500) |
-| `task.update` | mutation | Atualiza título, descrição e status |
-| `task.delete` | mutation | Exclui |
-| `task.generateBatch` | mutation | Cria um lote de tarefas (modo geração) |
+| `task.list` | query | Cursor-paginated list with configurable ordering |
+| `task.byId` | query | Fetches one task |
+| `task.create` | mutation | Creates a task (title required, up to 100 characters; optional description, up to 500) |
+| `task.update` | mutation | Updates title, description and status |
+| `task.delete` | mutation | Deletes a task |
+| `task.generateBatch` | mutation | Creates a batch of tasks (generate mode, for demonstration) |
 
-### Modelo de dados
+### Data model
 
-| Campo | Tipo | |
+The field names follow the challenge spec (`titulo`, `descricao`, `dataCriacao`).
+
+| Field | Type | |
 |---|---|---|
-| `id` | UUID | gerado no servidor |
-| `titulo` | string | obrigatório |
-| `descricao` | string? | opcional |
-| `status` | `pending` \| `in_progress` \| `completed` | campo extra |
+| `id` | UUID | generated on the server |
+| `titulo` | string | required |
+| `descricao` | string? | optional |
+| `status` | `pending` \| `in_progress` \| `completed` | extra field |
 | `dataCriacao` | Date | |
-| `dataAtualizacao` | Date? | campo extra; preenchida quando o usuário cria ou edita (vazia nas tarefas de exemplo e nas geradas) |
+| `dataAtualizacao` | Date? | extra field; set when the user creates or edits a task (empty for sample and generated tasks) |
 
-`status` e `dataAtualizacao` não estavam no enunciado. O status é parte básica da modelagem de uma tarefa. A data de atualização foi necessária para a ordenação: é ela que leva a tarefa criada ou editada pelo usuário para o topo da lista. As tarefas geradas pela rolagem não a recebem, para entrarem no fim da lista, onde o infinite scroll as acrescenta.
+`status` and `dataAtualizacao` were not in the spec. Status is a basic part of modeling a task. The update date is needed for ordering: it is what brings a task created or edited by the user to the top of the list. Tasks generated while scrolling don't get it, so they land at the end of the list, where the infinite scroll appends them.
 
-### Armazenamento
+### Storage
 
-As tarefas são gravadas **apenas em memória** (um `Map` indexado pelo id), como pede o enunciado. **Não há persistência**: nada é salvo em disco ou banco, e todas as tarefas se perdem quando o servidor ou o container reinicia. O acesso aos dados passa por um repositório (`src/server/task-repository.ts`). O resto da aplicação só conhece o repositório, então trocar por um banco de dados não afetaria rotas nem telas. A lista ordenada fica em cache e só é recalculada quando alguma tarefa é criada, editada ou excluída.
+Tasks are stored **in memory only** (a `Map` keyed by id), as the spec asks. **There is no persistence**: nothing is written to disk or a database, and all tasks are lost when the server or container restarts. Data access goes through a repository (`src/server/task-repository.ts`). The rest of the app only knows the repository, so swapping in a database would not affect routes or pages. The sorted list is cached and only recomputed when a task is created, edited or deleted.
 
-### Métricas no servidor
+### Server metrics
 
-A cada 10 s com tráfego, o servidor imprime no log um resumo por endpoint (chamadas, erros, média, p95, máximo e tendência) e a memória em uso:
+Every 10 s with traffic, the server prints a per-endpoint summary to the log (calls, errors, average, p95, max and trend) along with memory usage:
 
 ```bash
-docker logs -f artefact_ai_engineer-app-1
+docker compose logs -f app
 ```
 
 ```
@@ -144,16 +146,16 @@ docker logs -f artefact_ai_engineer-app-1
 └────────────────────┴───────┴────────┴───────┴───────┴───────┴───────────┘
 ```
 
-## Testes
+## Tests
 
 ```bash
-npm test             # Vitest: endpoints da API, ordenação e métricas
+npm test             # Vitest: API endpoints, ordering and metrics
 npm run lint
 ```
 
-Os testes dos endpoints (`src/server/routers/task.test.ts`) chamam cada procedure do tRPC sem subir o servidor, cobrindo criação, busca, edição, exclusão, paginação, geração em lote, validações e erros (`BAD_REQUEST`, `NOT_FOUND`). Dois deles passam pelo handler HTTP para conferir o formato de erro que o formulário recebe. Cada teste começa com o armazenamento vazio.
+The endpoint tests (`src/server/routers/task.test.ts`) call each tRPC procedure without starting the server, covering create, fetch, edit, delete, pagination, batch generation, validation and errors (`BAD_REQUEST`, `NOT_FOUND`). Two of them go through the HTTP handler to check the error format the form receives. Each test starts with empty storage.
 
-Testes de performance (opcionais, precisam do app no ar): ver [test/README.md](test/README.md).
+Performance tests (optional, need the app running): see [test/README.md](test/README.md).
 
 ## Stack
 
@@ -161,28 +163,28 @@ Testes de performance (opcionais, precisam do app no ar): ver [test/README.md](t
 |---|---|
 | Framework | Next.js 15.5 (App Router, `output: "standalone"`) |
 | API | tRPC v11 + `@trpc/tanstack-react-query`, superjson |
-| Dados no cliente | TanStack React Query, TanStack Virtual |
-| Validação | Zod (schemas compartilhados entre cliente e servidor) |
-| Formulários | React Hook Form + `@hookform/resolvers` |
-| Idiomas | next-intl (idioma em cookie, sem prefixo na URL) |
-| Estilo | Tailwind CSS 4 |
-| Testes | Vitest; Playwright (performance) |
-| Execução | Docker (multi-stage, usuário sem privilégios) |
+| Client data | TanStack React Query, TanStack Virtual |
+| Validation | Zod (schemas shared between client and server) |
+| Forms | React Hook Form + `@hookform/resolvers` |
+| Languages | next-intl (locale in a cookie, no URL prefix) |
+| Styling | Tailwind CSS 4 |
+| Tests | Vitest; Playwright (performance) |
+| Runtime | Docker (multi-stage, non-root user) |
 
-## Estrutura
+## Structure
 
 ```
 src/
-  app/                  rotas: lista (/), nova (/tasks/new), edição (/tasks/[id]/edit), API (/api/trpc)
-  components/           lista, item, formulário, seletor de idioma
-  schemas/task.ts       schemas Zod e tipos (fonte única das regras de validação)
+  app/                  routes: list (/), new (/tasks/new), edit (/tasks/[id]/edit), API (/api/trpc)
+  components/           list, item, form, language switch
+  schemas/task.ts       Zod schemas and types (single source of the validation rules)
   server/
-    routers/task.ts     procedures tRPC
-    task-repository.ts  regras de acesso aos dados (ordenar, paginar, criar, atualizar)
-    task-ordering.ts    regra de ordenação
-    metrics*.ts         coleta e resumo das métricas
-  trpc/                 configuração do tRPC no cliente e no servidor
-  i18n/                 configuração de idiomas
-messages/               textos em pt e en
-test/                   testes de performance e análise
+    routers/task.ts     tRPC procedures
+    task-repository.ts  data access (sort, paginate, create, update)
+    task-ordering.ts    ordering rule
+    metrics*.ts         metrics collection and summary
+  trpc/                 tRPC setup on client and server
+  i18n/                 language setup
+messages/               pt and en texts
+test/                   performance tests and analysis
 ```

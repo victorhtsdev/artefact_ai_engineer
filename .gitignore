@@ -40,10 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# enunciado da prova (não versionar)
+# challenge statement (not versioned)
 *.pdf
 
-# anotações pessoais (não versionar)
+# personal notes (not versioned)
 DECISOES.local.md
 
 /bench-results/
