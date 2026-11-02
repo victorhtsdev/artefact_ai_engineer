@@ -31,16 +31,16 @@ async function errorOf(promise: Promise<unknown>) {
 
 describe("task.create", () => {
   it("creates a pending task with a trimmed title and dataAtualizacao equal to dataCriacao", async () => {
-    const task = await api.task.create({ titulo: "  Comprar pão  ", descricao: "" });
+    const task = await api.task.create({ titulo: "  Buy bread  ", descricao: "" });
 
-    expect(task).toMatchObject({ titulo: "Comprar pão", descricao: undefined, status: "pending" });
+    expect(task).toMatchObject({ titulo: "Buy bread", descricao: undefined, status: "pending" });
     expect(task.dataCriacao).toBeInstanceOf(Date);
     expect(task.dataAtualizacao).toEqual(task.dataCriacao);
   });
 
   it("puts the new task at the top of the list, above generated ones", async () => {
     await api.task.generateBatch({ count: 15 });
-    const created = await api.task.create({ titulo: "Minha tarefa" });
+    const created = await api.task.create({ titulo: "My task" });
 
     const { items } = await api.task.list({ limit: 10 });
 
@@ -151,7 +151,7 @@ describe("task.generateBatch", () => {
     await api.task.create({ titulo: "Existing" });
     const created = await api.task.generateBatch({ count: 3 });
 
-    expect(created.map((task) => task.titulo)).toEqual(["Tarefa gerada 2", "Tarefa gerada 3", "Tarefa gerada 4"]);
+    expect(created.map((task) => task.titulo)).toEqual(["Generated task 2", "Generated task 3", "Generated task 4"]);
     expect(created.every((task) => task.dataAtualizacao === undefined)).toBe(true);
   });
 

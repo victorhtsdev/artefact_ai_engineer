@@ -1,8 +1,8 @@
 # Task Manager
 
-Task CRUD built with **Next.js 15 (App Router)** and **tRPC v11**: in-memory storage, server-rendered task list (SSR), form validation and a Portuguese/English interface. It also includes a scroll performance study, with measurements on the server and in the browser ([see below](#scroll-performance-study)).
+Task CRUD built with **Next.js 15 (App Router)** and **tRPC v11**: in-memory storage, server-rendered task list (SSR), form validation and an English/Portuguese interface. It also includes a scroll performance study, with measurements on the server and in the browser ([see below](#scroll-performance-study)).
 
-![Task list](docs/screenshots/01-lista.png)
+![Task list](docs/screenshots/01-list.png)
 
 ## Running
 
@@ -42,13 +42,13 @@ Already set in `docker-compose.yml`:
 | | |
 |---|---|
 | **SSR list**: the first page is already in the HTML | **Validation** on client and server, with a message per field |
-| ![List](docs/screenshots/01-lista.png) | ![Validation](docs/screenshots/02-validacao.png) |
+| ![List](docs/screenshots/01-list.png) | ![Validation](docs/screenshots/02-validation.png) |
 | **Create** with confirmation; the new task shows up at the top of the list | **Edit** title, description and status |
-| ![Create](docs/screenshots/03-criada.png) | ![Edit](docs/screenshots/04-edicao.png) |
+| ![Create](docs/screenshots/03-created.png) | ![Edit](docs/screenshots/04-edit.png) |
 | **Delete** with confirmation and a success or error notice | **Missing task**: 404 page |
-| ![Delete](docs/screenshots/05-excluida.png) | ![Not found](docs/screenshots/08-nao-encontrada.png) |
+| ![Delete](docs/screenshots/05-deleted.png) | ![Not found](docs/screenshots/07-not-found.png) |
 
-The list shows tasks created or edited by the user first (most recent change on top), then the sample tasks and the ones generated while scrolling, oldest first. The interface is available in Portuguese (default) and English, with a PT | EN switch in the top-right corner. The screenshots show the Portuguese version.
+The list shows tasks created or edited by the user first (most recent change on top), then the sample tasks and the ones generated while scrolling, oldest first. The interface is available in English (default) and Portuguese, with an EN | PT switch in the top-right corner.
 
 ## Infinite scroll (bonus)
 
@@ -58,7 +58,7 @@ To test scrolling with volume, there is a mode that creates tasks on the server 
 
 | "Generate tasks on scroll" link | Tasks being created while scrolling |
 |---|---|
-| ![Generate tasks on scroll](docs/screenshots/09-gerar_ao_rolar.png) | ![Generate mode](docs/screenshots/06-modo-geracao.png) |
+| ![Generate tasks on scroll](docs/screenshots/08-generate-link.png) | ![Generate mode](docs/screenshots/06-generate-mode.png) |
 
 ### Scroll performance study
 
@@ -185,6 +185,6 @@ src/
     metrics*.ts         metrics collection and summary
   trpc/                 tRPC setup on client and server
   i18n/                 language setup
-messages/               pt and en texts
+messages/               en and pt texts
 test/                   performance tests and analysis
 ```

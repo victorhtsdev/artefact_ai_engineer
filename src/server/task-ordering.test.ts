@@ -48,6 +48,6 @@ describe("compareTaskKeys", () => {
   it("orders titles naturally", () => {
     const titled = (id: string, titulo: string): TaskKey => ({ ...key(id, 1), titulo });
     const orderBy: TaskOrderBy = [{ field: "titulo", direction: "asc" }];
-    expect(sortIds([titled("10", "Tarefa 10"), titled("2", "Tarefa 2")], orderBy)).toEqual(["2", "10"]);
+    expect(sortIds([titled("10", "Task 10"), titled("2", "Task 2")], orderBy)).toEqual(["2", "10"]);
   });
 });

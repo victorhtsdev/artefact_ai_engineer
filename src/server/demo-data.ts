@@ -13,8 +13,8 @@ export function createDemoTasks(): Task[] {
 
     return {
       id: randomUUID(),
-      titulo: `Tarefa de exemplo ${index + 1}`,
-      descricao: index % 3 === 0 ? undefined : `Descrição fictícia da tarefa ${index + 1}.`,
+      titulo: `Sample task ${index + 1}`,
+      descricao: index % 3 === 0 ? undefined : `Fictional description of task ${index + 1}.`,
       status: TASK_STATUSES[index % TASK_STATUSES.length],
       dataCriacao,
     };
@@ -25,8 +25,8 @@ export function createGeneratedTaskInputs(count: number, startNumber: number): C
   return Array.from({ length: count }, (_, index) => {
     const number = startNumber + index;
     return {
-      titulo: `Tarefa gerada ${number}`,
-      descricao: `Criada automaticamente durante a rolagem (#${number}).`,
+      titulo: `Generated task ${number}`,
+      descricao: `Created automatically while scrolling (#${number}).`,
     };
   });
 }
