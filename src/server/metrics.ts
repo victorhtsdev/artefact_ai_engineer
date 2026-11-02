@@ -23,6 +23,8 @@ type MetricsState = {
   taskCount?: () => number;
 };
 
+// On globalThis because Next bundles instrumentation.ts and the API route separately;
+// plain module state would give each bundle its own copy and the summary would always be empty.
 const globalForMetrics = globalThis as unknown as { metrics?: MetricsState };
 const state: MetricsState = (globalForMetrics.metrics ??= { calls: new Map(), p95History: new Map() });
 

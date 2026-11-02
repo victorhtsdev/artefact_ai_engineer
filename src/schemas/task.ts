@@ -8,6 +8,8 @@ export const taskIdSchema = z.object({
   id: z.uuid("invalidId"),
 });
 
+// Single source of the validation rules, shared by the form (client) and the tRPC procedures (server).
+// Messages are i18n keys, not text: the frontend owns every user-facing message.
 export const createTaskSchema = z.object({
   titulo: z.string().trim().min(1, "titleRequired").max(100, "titleTooLong"),
   descricao: z.string().trim().max(500, "descriptionTooLong").optional(),
@@ -33,6 +35,8 @@ export const taskSortCriterionSchema = z.object({
 
 export const taskOrderBySchema = z.array(taskSortCriterionSchema).min(1).max(TASK_SORT_FIELDS.length);
 
+// Edited tasks first (most recent edit on top), then never-edited ones, oldest first.
+// New tasks therefore land at the end of the list, where infinite scroll appends them.
 export const DEFAULT_TASK_ORDER: z.infer<typeof taskOrderBySchema> = [
   { field: "dataAtualizacao", direction: "desc", nulls: "last" },
   { field: "dataCriacao", direction: "asc" },
@@ -67,6 +71,7 @@ export type Task = {
   descricao?: string;
   status: TaskStatus;
   dataCriacao: Date;
+  // Not in the original spec: undefined until the first edit, and used to move edited tasks to the top.
   dataAtualizacao?: Date;
 };
 

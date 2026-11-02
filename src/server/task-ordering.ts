@@ -25,6 +25,7 @@ function compareByCriterion(a: TaskKey, b: TaskKey, { field, direction, nulls = 
   return (direction === "asc" ? 1 : -1) * compareValues(left, right);
 }
 
+// The id is the final tie-breaker so the order never changes between requests; cursor pagination depends on it.
 export function compareTaskKeys(a: TaskKey, b: TaskKey, orderBy: TaskOrderBy): number {
   for (const criterion of orderBy) {
     const result = compareByCriterion(a, b, criterion);

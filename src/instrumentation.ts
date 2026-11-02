@@ -1,5 +1,6 @@
 const DEFAULT_METRICS_INTERVAL_MS = 10_000;
 
+// Runs once when the server starts. The dynamic import keeps Node-only code out of the Edge runtime.
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 

@@ -12,6 +12,8 @@ import { type ListMode, TASK_LIST_INPUT, taskListOptions } from "@/trpc/task-lis
 
 const PREFETCH_DISTANCE = "0px 0px 150% 0px";
 
+// Baseline for the performance test: renders every task. The app uses TaskList (virtualized);
+// this version is only reachable through ?list=plain.
 export function TaskListPlain({ mode }: { mode: ListMode }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();

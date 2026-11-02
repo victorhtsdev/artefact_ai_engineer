@@ -8,9 +8,12 @@ import { parseListMode, parseListRenderer, TASK_LIST_INPUT, taskListOptions } fr
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ mode?: string; list?: string }> }) {
   const params = await searchParams;
   const mode = parseListMode(params.mode);
+  // ?list=plain keeps the non-virtualized list available as the baseline of the performance test (test/README.md).
   const renderer = parseListRenderer(params.list);
   const t = await getTranslations();
 
+  // The first page is fetched on the server, so the list is already in the HTML (SSR).
+  // HydrateClient hands this cache to React Query in the browser, which continues from there.
   await getQueryClient().prefetchInfiniteQuery(
     trpc.task.list.infiniteQueryOptions(TASK_LIST_INPUT, taskListOptions),
   );

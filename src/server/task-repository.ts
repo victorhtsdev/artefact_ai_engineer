@@ -15,6 +15,8 @@ function createStore(): TaskStore {
   return { tasks: new Map(initialTasks.map((task) => [task.id, task])), version: 0 };
 }
 
+// In-memory storage, as the spec asks. Kept on globalThis so it survives hot reload in development.
+// The rest of the app only talks to taskRepository, so a database could replace the Map without other changes.
 const globalForTasks = globalThis as unknown as { taskStore?: TaskStore };
 const store = (globalForTasks.taskStore ??= createStore());
 
@@ -27,6 +29,7 @@ function save(task: Task): void {
 
 const normalizeDescricao = (descricao?: string) => descricao || undefined;
 
+// Sorting every task on each read is the expensive part; the sorted list is reused until a write bumps the version.
 let sortedTasksCache: { version: number; order: string; tasks: Task[] } | undefined;
 
 function getSortedTasks(orderBy: TaskOrderBy): Task[] {
@@ -40,6 +43,8 @@ function getSortedTasks(orderBy: TaskOrderBy): Task[] {
   return tasks;
 }
 
+// Cursor = id of the last item returned. Unlike page numbers, it doesn't skip or repeat items
+// when tasks are created or deleted while the user is scrolling.
 function paginate<T extends { id: string }>(
   list: T[],
   { limit, cursor }: Pick<ListTasksInput, "limit" | "cursor">,
@@ -84,6 +89,7 @@ export const taskRepository = {
 
   async createMany(inputs: CreateTaskInput[]): Promise<Task[]> {
     const now = Date.now();
+    // +index ms keeps the batch in creation order; equal timestamps would fall back to the random id.
     const created = inputs.map((input, index) => buildTask(input, new Date(now + index)));
     for (const task of created) store.tasks.set(task.id, task);
     store.version++;

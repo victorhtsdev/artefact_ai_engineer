@@ -44,6 +44,7 @@ export function TaskForm({ task }: { task?: Task }) {
       toast.success(successMessage);
       router.push("/");
     },
+    // Errors caught by the server's validation show up on the same fields as the client-side ones.
     onError: (error: TRPCClientErrorLike<AppRouter>) => {
       const fieldErrors = error.data?.fieldErrors ?? {};
       for (const [field, messages] of Object.entries(fieldErrors)) {

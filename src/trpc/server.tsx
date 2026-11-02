@@ -5,6 +5,7 @@ import { cache } from "react";
 import { appRouter } from "@/server/root";
 import { makeQueryClient } from "@/trpc/query-client";
 
+// cache() gives one QueryClient per server request, so cached data is never shared between users.
 export const getQueryClient = cache(makeQueryClient);
 
 export const trpc = createTRPCOptionsProxy({

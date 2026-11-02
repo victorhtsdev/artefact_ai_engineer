@@ -9,6 +9,7 @@ function getFieldErrors(cause: unknown): FieldErrors | null {
   return cause instanceof ZodError ? z.flattenError(cause).fieldErrors : null;
 }
 
+// Internal error details never reach the client; Zod field errors do, so the form can show them per field.
 const t = initTRPC.create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
@@ -23,6 +24,7 @@ const t = initTRPC.create({
   },
 });
 
+// Every procedure goes through this middleware; metrics-reporter.ts prints the periodic summary.
 const withMetrics = t.middleware(async ({ path, next }) => {
   const start = performance.now();
   const result = await next();
@@ -31,4 +33,5 @@ const withMetrics = t.middleware(async ({ path, next }) => {
 });
 
 export const router = t.router;
+export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure.use(withMetrics);

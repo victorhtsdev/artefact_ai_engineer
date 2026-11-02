@@ -16,6 +16,8 @@ const OVERSCAN_ITEMS = 5;
 const LOAD_AHEAD_ITEMS = 20;
 const SSR_VIEWPORT = { width: 0, height: 1200 };
 
+// Infinite scroll with a virtualized list: only the tasks on screen are in the DOM.
+// Rendering every task made scrolling freeze after ~2,000 tasks; see test/README.md for the measurements.
 export function TaskList({ mode }: { mode: ListMode }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -35,6 +37,8 @@ export function TaskList({ mode }: { mode: ListMode }) {
 
   const tasks = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
 
+  // Generated tasks go into the cache as a new page, the same one the server would return for that cursor.
+  // No refetch is needed, and a later refetch rebuilds identical pages.
   const appendGeneratedPage = (created: Task[]) => {
     queryClient.setQueryData(trpc.task.list.infiniteQueryKey(TASK_LIST_INPUT), (current) => {
       if (!current) return current;
@@ -64,16 +68,20 @@ export function TaskList({ mode }: { mode: ListMode }) {
 
   const virtualizer = useWindowVirtualizer({
     count: tasks.length,
+    // Measured heights are cached per task, not per position; deleting or editing a task shifts positions.
     getItemKey: (index) => tasks[index].id,
     estimateSize: () => ESTIMATED_ITEM_HEIGHT,
     gap: ITEM_GAP,
     overscan: OVERSCAN_ITEMS,
     scrollMargin: listOffset,
+    // There is no window on the server. A presumed viewport puts the first tasks in the SSR HTML,
+    // and the client uses the same value on its first render, so hydration matches.
     initialRect: SSR_VIEWPORT,
   });
 
   const virtualItems = virtualizer.getVirtualItems();
   const lastRenderedIndex = virtualItems.at(-1)?.index ?? -1;
+  // The next page is requested before the user reaches the end, so scrolling doesn't stop to wait for it.
   const isNearEnd = lastRenderedIndex >= tasks.length - 1 - LOAD_AHEAD_ITEMS;
   const canGenerate = mode === "generate" && !isGenerating && !isGenerateError;
 

@@ -16,7 +16,7 @@ docker compose up -d --build
 
 Acesse **http://localhost:3000**. Para parar: `docker compose down`.
 
-O app sobe com 25 tarefas de exemplo. Os dados ficam em memória: **reiniciar o container apaga tudo** e recria os exemplos.
+O app sobe com 25 tarefas de exemplo. Os dados ficam só em memória e **não são persistidos**: reiniciar o container apaga tudo e recria os exemplos.
 
 ### Sem Docker (desenvolvimento)
 
@@ -56,7 +56,9 @@ A listagem carrega 10 tarefas por vez conforme a página é rolada, atendendo ao
 
 Para testar a rolagem com volume, existe um modo que cria tarefas no servidor enquanto a página é rolada: `/?mode=generate` (link "Gerar tarefas ao rolar").
 
-![Modo geração](docs/screenshots/06-modo-geracao.png)
+| Link "Gerar tarefas ao rolar" | Tarefas sendo criadas durante a rolagem |
+|---|---|
+| ![Gerar tarefas ao rolar](docs/screenshots/09-gerar_ao_rolar.png) | ![Modo geração](docs/screenshots/06-modo-geracao.png) |
 
 ### Análise de performance
 
@@ -115,7 +117,7 @@ Páginas (React)                             Server Components (SSR)
 
 ### Armazenamento
 
-As tarefas ficam **em memória** (um `Map` indexado pelo id), como pede o enunciado, atrás de um repositório (`src/server/task-repository.ts`). O resto da aplicação só conhece o repositório, então trocar por um banco de dados não afetaria rotas nem telas. A lista ordenada fica em cache e só é recalculada quando alguma tarefa é criada, editada ou excluída.
+As tarefas são gravadas **apenas em memória** (um `Map` indexado pelo id), como pede o enunciado. **Não há persistência**: nada é salvo em disco ou banco, e todas as tarefas se perdem quando o servidor ou o container reinicia. O acesso aos dados passa por um repositório (`src/server/task-repository.ts`). O resto da aplicação só conhece o repositório, então trocar por um banco de dados não afetaria rotas nem telas. A lista ordenada fica em cache e só é recalculada quando alguma tarefa é criada, editada ou excluída.
 
 ### Métricas no servidor
 
@@ -138,9 +140,11 @@ docker logs -f artefact_ai_engineer-app-1
 ## Testes
 
 ```bash
-npm test             # testes unitários (Vitest): ordenação e métricas
+npm test             # Vitest: endpoints da API, ordenação e métricas
 npm run lint
 ```
+
+Os testes dos endpoints (`src/server/routers/task.test.ts`) chamam cada procedure do tRPC sem subir o servidor, cobrindo criação, busca, edição, exclusão, paginação, geração em lote, validações e erros (`BAD_REQUEST`, `NOT_FOUND`). Dois deles passam pelo handler HTTP para conferir o formato de erro que o formulário recebe. Cada teste começa com o armazenamento vazio.
 
 Testes de performance (opcionais, precisam do app no ar): ver [test/README.md](test/README.md).
 

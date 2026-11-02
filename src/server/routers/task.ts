@@ -25,6 +25,8 @@ export const taskRouter = router({
     .input(createTaskSchema)
     .mutation(({ input }) => taskRepository.create(input)),
 
+  // A mutation, not a query: React Query retries and refetches queries on its own,
+  // and each extra run would create duplicate tasks.
   generateBatch: publicProcedure.input(generateTasksSchema).mutation(async ({ input }) => {
     const startNumber = (await taskRepository.count()) + 1;
     return taskRepository.createMany(createGeneratedTaskInputs(input.count, startNumber));
