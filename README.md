@@ -48,7 +48,7 @@ Já configuradas no `docker-compose.yml`:
 | **Exclusão** com confirmação e aviso de sucesso ou erro | **Tarefa inexistente**: página 404 |
 | ![Exclusão](docs/screenshots/05-excluida.png) | ![Não encontrada](docs/screenshots/08-nao-encontrada.png) |
 
-A lista mostra primeiro as tarefas editadas (a mais recente no topo) e depois as nunca editadas, da mais antiga para a mais nova. A interface está em português e inglês (seletor PT | EN no canto superior direito).
+A lista mostra primeiro as tarefas editadas (a mais recente no topo) e depois as nunca editadas, da mais antiga para a mais nova. A interface está em português e inglês (seletor PT | EN no canto superior direito). Os dois idiomas foram incluídos porque não estava claro qual seria o mais adequado para a avaliação.
 
 ## Infinite scroll (bônus)
 
