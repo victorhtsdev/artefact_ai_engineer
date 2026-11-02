@@ -40,11 +40,11 @@ As latências são medidas pelo cliente (incluem o HTTP). Para ver a memória do
 
 ## 2. Rolagem no navegador
 
-Este teste foi criado para resolver um problema que o desenvolvedor notou ao testar a aplicação manualmente. Ele mede, num navegador real, as abordagens de renderização da lista no modo geração (`/?mode=generate`), em que rolar até o fim cria novas tarefas no servidor, e serviu de base para a decisão registrada no fim desta seção: **adotar a virtualização**.
+Criei este teste para resolver um problema que notei ao testar a aplicação manualmente. Ele mede, num navegador real, as abordagens de renderização da lista no modo geração (`/?mode=generate`), em que rolar até o fim cria novas tarefas no servidor, e serviu de base para a decisão registrada no fim desta seção: **adotar a virtualização**.
 
 ### Problema observado
 
-Testando a aplicação no navegador, o desenvolvedor notou que, segurando **Page Down**, a geração de tarefas ficava cada vez mais lenta à medida que a lista crescia. As métricas do servidor (resumo periódico no log do container) mostravam o `task.generateBatch` estável em ~1 ms, mas recebendo **cada vez menos chamadas**: o servidor respondia rápido, era o navegador que demorava cada vez mais para processar cada lote e pedir o próximo. Para comparar soluções com dados, e não por impressão, foi criado este teste.
+Testando a aplicação no navegador, notei que, segurando **Page Down**, a geração de tarefas ficava cada vez mais lenta à medida que a lista crescia. As métricas do servidor (resumo periódico no log do container) mostravam o `task.generateBatch` estável em ~1 ms, mas recebendo **cada vez menos chamadas**: o servidor respondia rápido, era o navegador que demorava cada vez mais para processar cada lote e pedir o próximo. Para comparar soluções com dados, e não por impressão, criei este teste.
 
 ### Como rodar
 
@@ -178,7 +178,3 @@ Motivos, pelos dados:
 #### Limitação conhecida
 
 Acima de ~7 mil tarefas carregadas, o processamento de cada lote no navegador volta a pesar (até 45 % de uma janela travada perto de 10 mil). O DOM continua pequeno; o custo vem de todas as tarefas carregadas permanecerem em memória no cliente. Em uso real da lista esse volume não é alcançado — só no modo geração, que é uma demonstração.
-
-#### Conclusão
-
-Um ponto de melhoria foi identificado no uso real da aplicação, analisado com dados e resolvido: a experiência de rolagem passou de travada a fluida nos volumes que a aplicação de fato atinge. Para o escopo deste projeto, o resultado é suficiente.

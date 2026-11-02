@@ -1,6 +1,6 @@
 # Gerenciador de Tarefas
 
-CRUD de tarefas com **Next.js 15 (App Router)** e **tRPC v11**, com armazenamento em memória, listagem renderizada no servidor (SSR), formulário com validação e interface em português e inglês.
+CRUD de tarefas com **Next.js 15 (App Router)** e **tRPC v11**, com armazenamento em memória, listagem renderizada no servidor (SSR), formulário com validação e interface em português e inglês. Inclui um estudo de performance da rolagem, com medições no servidor e no navegador ([ver abaixo](#estudo-de-performance-da-rolagem)).
 
 ![Lista de tarefas](docs/screenshots/01-lista.png)
 
@@ -48,7 +48,7 @@ Já configuradas no `docker-compose.yml`:
 | **Exclusão** com confirmação e aviso de sucesso ou erro | **Tarefa inexistente**: página 404 |
 | ![Exclusão](docs/screenshots/05-excluida.png) | ![Não encontrada](docs/screenshots/08-nao-encontrada.png) |
 
-A lista mostra primeiro as tarefas criadas ou editadas pelo usuário (a alteração mais recente no topo) e depois as tarefas de exemplo e as geradas pela rolagem, da mais antiga para a mais nova. A interface está em português e inglês (seletor PT | EN no canto superior direito). Os dois idiomas foram incluídos porque não estava claro qual seria o mais adequado para a avaliação.
+A lista mostra primeiro as tarefas criadas ou editadas pelo usuário (a alteração mais recente no topo) e depois as tarefas de exemplo e as geradas pela rolagem, da mais antiga para a mais nova. A interface está em português (padrão) e inglês, com seletor PT | EN no canto superior direito.
 
 ## Infinite scroll (bônus)
 
@@ -60,14 +60,21 @@ Para testar a rolagem com volume, existe um modo que cria tarefas no servidor en
 |---|---|
 | ![Gerar tarefas ao rolar](docs/screenshots/09-gerar_ao_rolar.png) | ![Modo geração](docs/screenshots/06-modo-geracao.png) |
 
-### Análise de performance
+### Estudo de performance da rolagem
 
-No modo geração, a rolagem ficava mais lenta à medida que a lista crescia. Para achar a causa, foram feitos dois testes, detalhados em [test/README.md](test/README.md):
+Para verificar se o infinite scroll aguenta volume, criei o modo de geração acima. Testando com ele, notei que a rolagem ficava mais lenta conforme a lista crescia. Em vez de otimizar por intuição, medi onde estava o gargalo:
 
-- **Servidor** (`npm run test:stress`): 100 mil tarefas criadas e lidas pela API. As respostas ficaram em poucos milissegundos do início ao fim; não houve gargalo na carga testada.
-- **Cliente** (`npm run test:perf`): um navegador automatizado rolando a página. O gargalo estava aqui: com todas as tarefas no DOM, a página passava a maior parte do tempo travada a partir de ~2 mil tarefas.
+- **Servidor** (`npm run test:stress`): 100 mil tarefas criadas e lidas pela API, com respostas em poucos milissegundos do início ao fim. O servidor não era o gargalo.
+- **Navegador** (`npm run test:perf`): Playwright rolando a página e medindo ritmo, DOM, memória e tempo travado. O gargalo estava aqui: com todas as tarefas no DOM, a página passava a maior parte do tempo travada a partir de ~2 mil tarefas.
 
-A solução foi virtualizar a lista com `@tanstack/react-virtual`, que mantém no DOM só as tarefas visíveis. A lista passou a chegar a 10 mil tarefas em 90 s; a versão anterior parou em 7.545 depois de 5 minutos.
+| | Sem virtualização | Com virtualização (adotada) |
+|---|---|---|
+| Chegar a 10 mil tarefas | não chegou em 5 min (parou em 7.545) | **90 s** |
+| Itens no DOM | milhares | **~18** |
+| Pico de memória do navegador | 430 MB | **58 MB** |
+| Tempo travado (~7 mil tarefas) | 75–88 % | **~0 %** |
+
+A solução foi virtualizar a lista com `@tanstack/react-virtual`, que mantém no DOM só as tarefas visíveis. Metodologia, dados por janela e limitação conhecida estão em [test/README.md](test/README.md).
 
 ## Como funciona
 
