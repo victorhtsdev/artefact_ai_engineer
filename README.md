@@ -43,12 +43,12 @@ Já configuradas no `docker-compose.yml`:
 |---|---|
 | **Listagem com SSR**: a primeira página já vem no HTML | **Validação** no cliente e no servidor, com mensagem por campo |
 | ![Lista](docs/screenshots/01-lista.png) | ![Validação](docs/screenshots/02-validacao.png) |
-| **Criação** com confirmação; a tarefa nova entra no fim da lista | **Edição** de título, descrição e status |
+| **Criação** com confirmação; a tarefa nova aparece no topo da lista | **Edição** de título, descrição e status |
 | ![Criação](docs/screenshots/03-criada.png) | ![Edição](docs/screenshots/04-edicao.png) |
 | **Exclusão** com confirmação e aviso de sucesso ou erro | **Tarefa inexistente**: página 404 |
 | ![Exclusão](docs/screenshots/05-excluida.png) | ![Não encontrada](docs/screenshots/08-nao-encontrada.png) |
 
-A lista mostra primeiro as tarefas editadas (a mais recente no topo) e depois as nunca editadas, da mais antiga para a mais nova. A interface está em português e inglês (seletor PT | EN no canto superior direito). Os dois idiomas foram incluídos porque não estava claro qual seria o mais adequado para a avaliação.
+A lista mostra primeiro as tarefas criadas ou editadas pelo usuário (a alteração mais recente no topo) e depois as tarefas de exemplo e as geradas pela rolagem, da mais antiga para a mais nova. A interface está em português e inglês (seletor PT | EN no canto superior direito). Os dois idiomas foram incluídos porque não estava claro qual seria o mais adequado para a avaliação.
 
 ## Infinite scroll (bônus)
 
@@ -111,9 +111,9 @@ Páginas (React)                             Server Components (SSR)
 | `descricao` | string? | opcional |
 | `status` | `pending` \| `in_progress` \| `completed` | campo extra |
 | `dataCriacao` | Date | |
-| `dataAtualizacao` | Date? | campo extra; vazia até a primeira edição |
+| `dataAtualizacao` | Date? | campo extra; preenchida quando o usuário cria ou edita (vazia nas tarefas de exemplo e nas geradas) |
 
-`status` e `dataAtualizacao` não estavam no enunciado. O status é parte básica da modelagem de uma tarefa. A data de atualização foi necessária para a ordenação: é ela que leva a tarefa editada para o topo da lista.
+`status` e `dataAtualizacao` não estavam no enunciado. O status é parte básica da modelagem de uma tarefa. A data de atualização foi necessária para a ordenação: é ela que leva a tarefa criada ou editada pelo usuário para o topo da lista. As tarefas geradas pela rolagem não a recebem, para entrarem no fim da lista, onde o infinite scroll as acrescenta.
 
 ### Armazenamento
 

@@ -42,7 +42,7 @@ export function TaskItem({ task }: { task: Task }) {
               {t(`taskStatus.${task.status}`)}
             </span>
             <span>{t("tasks.createdAt", { date: formatDate(task.dataCriacao) })}</span>
-            {task.dataAtualizacao && (
+            {task.dataAtualizacao && task.dataAtualizacao.getTime() !== task.dataCriacao.getTime() && (
               <span>· {t("tasks.updatedAt", { date: formatDate(task.dataAtualizacao) })}</span>
             )}
           </p>

@@ -81,8 +81,11 @@ export const taskRepository = {
     return store.tasks.get(id);
   },
 
+  // A task created by the user counts as its own latest change, so it lands at the top of the list.
+  // Generated tasks (createMany) keep dataAtualizacao empty and go to the end, where infinite scroll appends them.
   async create(input: CreateTaskInput): Promise<Task> {
-    const task = buildTask(input, new Date());
+    const now = new Date();
+    const task: Task = { ...buildTask(input, now), dataAtualizacao: now };
     save(task);
     return task;
   },

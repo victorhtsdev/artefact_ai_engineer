@@ -30,12 +30,21 @@ async function errorOf(promise: Promise<unknown>) {
 }
 
 describe("task.create", () => {
-  it("creates a pending, never-edited task with a trimmed title", async () => {
+  it("creates a pending task with a trimmed title and dataAtualizacao equal to dataCriacao", async () => {
     const task = await api.task.create({ titulo: "  Comprar pão  ", descricao: "" });
 
     expect(task).toMatchObject({ titulo: "Comprar pão", descricao: undefined, status: "pending" });
     expect(task.dataCriacao).toBeInstanceOf(Date);
-    expect(task.dataAtualizacao).toBeUndefined();
+    expect(task.dataAtualizacao).toEqual(task.dataCriacao);
+  });
+
+  it("puts the new task at the top of the list, above generated ones", async () => {
+    await api.task.generateBatch({ count: 15 });
+    const created = await api.task.create({ titulo: "Minha tarefa" });
+
+    const { items } = await api.task.list({ limit: 10 });
+
+    expect(items[0].id).toBe(created.id);
   });
 
   it("rejects an empty or too long title", async () => {
@@ -143,6 +152,7 @@ describe("task.generateBatch", () => {
     const created = await api.task.generateBatch({ count: 3 });
 
     expect(created.map((task) => task.titulo)).toEqual(["Tarefa gerada 2", "Tarefa gerada 3", "Tarefa gerada 4"]);
+    expect(created.every((task) => task.dataAtualizacao === undefined)).toBe(true);
   });
 
   it("rejects more than 50 tasks per batch", async () => {

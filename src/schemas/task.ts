@@ -35,8 +35,8 @@ export const taskSortCriterionSchema = z.object({
 
 export const taskOrderBySchema = z.array(taskSortCriterionSchema).min(1).max(TASK_SORT_FIELDS.length);
 
-// Edited tasks first (most recent edit on top), then never-edited ones, oldest first.
-// New tasks therefore land at the end of the list, where infinite scroll appends them.
+// Tasks created or edited by the user first (most recent change on top), then the generated/demo ones, oldest first.
+// Tasks generated while scrolling therefore land at the end of the list, where infinite scroll appends them.
 export const DEFAULT_TASK_ORDER: z.infer<typeof taskOrderBySchema> = [
   { field: "dataAtualizacao", direction: "desc", nulls: "last" },
   { field: "dataCriacao", direction: "asc" },
@@ -71,7 +71,7 @@ export type Task = {
   descricao?: string;
   status: TaskStatus;
   dataCriacao: Date;
-  // Not in the original spec: undefined until the first edit, and used to move edited tasks to the top.
+  // Not in the original spec: set on user create/edit (empty for generated and demo tasks); moves the task to the top.
   dataAtualizacao?: Date;
 };
 
