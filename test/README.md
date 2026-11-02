@@ -23,7 +23,7 @@ npm run test:stress -- 10000  # another amount
 ### What it does
 
 1. **Generation:** creates the tasks in batches of 50 (`task.generateBatch`), printing average, p95 and max latency every 200 batches.
-2. **Reading:** pages through up to 400 pages of 50, starting from the **oldest** tasks (`dataCriacao asc`), like a user going through the whole list.
+2. **Reading:** pages through up to 400 pages of 50, starting from the **oldest** tasks (`createdAt asc`), like a user going through the whole list.
 
 Latencies are measured on the client (HTTP included). To watch server memory at the same time, follow the `[metrics]` summary in the log: `docker compose logs -f app`.
 

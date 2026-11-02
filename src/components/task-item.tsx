@@ -26,7 +26,7 @@ export function TaskItem({ task }: { task: Task }) {
   const formatDate = (date: Date) => format.dateTime(date, { dateStyle: "short", timeStyle: "short" });
 
   const handleDelete = () => {
-    if (window.confirm(t("tasks.confirmDelete", { titulo: task.titulo }))) {
+    if (window.confirm(t("tasks.confirmDelete", { title: task.title }))) {
       deleteTask.mutate({ id: task.id });
     }
   };
@@ -35,15 +35,15 @@ export function TaskItem({ task }: { task: Task }) {
     <article className="rounded-lg border border-gray-200 p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="font-semibold break-words">{task.titulo}</h2>
-          {task.descricao && <p className="mt-1 text-sm break-words text-gray-600">{task.descricao}</p>}
+          <h2 className="font-semibold break-words">{task.title}</h2>
+          {task.description && <p className="mt-1 text-sm break-words text-gray-600">{task.description}</p>}
           <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700">
               {t(`taskStatus.${task.status}`)}
             </span>
-            <span>{t("tasks.createdAt", { date: formatDate(task.dataCriacao) })}</span>
-            {task.dataAtualizacao && task.dataAtualizacao.getTime() !== task.dataCriacao.getTime() && (
-              <span>· {t("tasks.updatedAt", { date: formatDate(task.dataAtualizacao) })}</span>
+            <span>{t("tasks.createdAt", { date: formatDate(task.createdAt) })}</span>
+            {task.updatedAt && task.updatedAt.getTime() !== task.createdAt.getTime() && (
+              <span>· {t("tasks.updatedAt", { date: formatDate(task.updatedAt) })}</span>
             )}
           </p>
         </div>

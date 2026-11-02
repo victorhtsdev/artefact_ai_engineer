@@ -6,9 +6,9 @@ const at = (hour: number) => new Date(Date.UTC(2026, 0, 1, hour));
 
 const key = (id: string, createdHour: number, updatedHour?: number): TaskKey => ({
   id,
-  titulo: `Task ${id}`,
-  dataCriacao: at(createdHour),
-  dataAtualizacao: updatedHour === undefined ? undefined : at(updatedHour),
+  title: `Task ${id}`,
+  createdAt: at(createdHour),
+  updatedAt: updatedHour === undefined ? undefined : at(updatedHour),
 });
 
 const sortIds = (keys: TaskKey[], orderBy: TaskOrderBy) =>
@@ -36,18 +36,18 @@ describe("compareTaskKeys", () => {
   });
 
   it("places missing values first when asked to", () => {
-    const orderBy: TaskOrderBy = [{ field: "dataAtualizacao", direction: "desc", nulls: "first" }];
+    const orderBy: TaskOrderBy = [{ field: "updatedAt", direction: "desc", nulls: "first" }];
     expect(sortIds([a, b, c, d], orderBy)).toEqual(["b", "d", "a", "c"]);
   });
 
   it("falls back to the id when every criterion ties", () => {
-    const orderBy: TaskOrderBy = [{ field: "dataCriacao", direction: "asc" }];
+    const orderBy: TaskOrderBy = [{ field: "createdAt", direction: "asc" }];
     expect(sortIds([key("z", 1), key("y", 1)], orderBy)).toEqual(["y", "z"]);
   });
 
   it("orders titles naturally", () => {
-    const titled = (id: string, titulo: string): TaskKey => ({ ...key(id, 1), titulo });
-    const orderBy: TaskOrderBy = [{ field: "titulo", direction: "asc" }];
+    const titled = (id: string, title: string): TaskKey => ({ ...key(id, 1), title });
+    const orderBy: TaskOrderBy = [{ field: "title", direction: "asc" }];
     expect(sortIds([titled("10", "Task 10"), titled("2", "Task 2")], orderBy)).toEqual(["2", "10"]);
   });
 });

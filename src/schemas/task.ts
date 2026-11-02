@@ -11,8 +11,8 @@ export const taskIdSchema = z.object({
 // Single source of the validation rules, shared by the form (client) and the tRPC procedures (server).
 // Messages are i18n keys, not text: the frontend owns every user-facing message.
 export const createTaskSchema = z.object({
-  titulo: z.string().trim().min(1, "titleRequired").max(100, "titleTooLong"),
-  descricao: z.string().trim().max(500, "descriptionTooLong").optional(),
+  title: z.string().trim().min(1, "titleRequired").max(100, "titleTooLong"),
+  description: z.string().trim().max(500, "descriptionTooLong").optional(),
 });
 
 export const taskFormSchema = createTaskSchema.extend({
@@ -21,7 +21,7 @@ export const taskFormSchema = createTaskSchema.extend({
 
 export const updateTaskSchema = taskFormSchema.extend(taskIdSchema.shape);
 
-export const TASK_SORT_FIELDS = ["dataAtualizacao", "dataCriacao", "titulo"] as const;
+export const TASK_SORT_FIELDS = ["updatedAt", "createdAt", "title"] as const;
 
 export const SORT_DIRECTIONS = ["asc", "desc"] as const;
 
@@ -38,8 +38,8 @@ export const taskOrderBySchema = z.array(taskSortCriterionSchema).min(1).max(TAS
 // Tasks created or edited by the user first (most recent change on top), then the generated/demo ones, oldest first.
 // Tasks generated while scrolling therefore land at the end of the list, where infinite scroll appends them.
 export const DEFAULT_TASK_ORDER: z.infer<typeof taskOrderBySchema> = [
-  { field: "dataAtualizacao", direction: "desc", nulls: "last" },
-  { field: "dataCriacao", direction: "asc" },
+  { field: "updatedAt", direction: "desc", nulls: "last" },
+  { field: "createdAt", direction: "asc" },
 ];
 
 export const TASKS_PAGE_SIZE = 10;
@@ -67,12 +67,12 @@ export type ListTasksInput = z.infer<typeof listTasksSchema>;
 
 export type Task = {
   id: string;
-  titulo: string;
-  descricao?: string;
+  title: string;
+  description?: string;
   status: TaskStatus;
-  dataCriacao: Date;
+  createdAt: Date;
   // Not in the original spec: set on user create/edit (empty for generated and demo tasks); moves the task to the top.
-  dataAtualizacao?: Date;
+  updatedAt?: Date;
 };
 
 export type TaskPage = {

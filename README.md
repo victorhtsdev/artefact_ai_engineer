@@ -111,18 +111,18 @@ Pages (React)                               Server Components (SSR)
 
 ### Data model
 
-The field names follow the challenge spec (`titulo`, `descricao`, `dataCriacao`).
+The challenge spec names the fields in Portuguese (`titulo`, `descricao`, `dataCriacao`). The code uses the English equivalents (`title`, `description`, `createdAt`) so the whole codebase stays in one language.
 
 | Field | Type | |
 |---|---|---|
 | `id` | UUID | generated on the server |
-| `titulo` | string | required |
-| `descricao` | string? | optional |
+| `title` | string | required |
+| `description` | string? | optional |
 | `status` | `pending` \| `in_progress` \| `completed` | extra field |
-| `dataCriacao` | Date | |
-| `dataAtualizacao` | Date? | extra field; set when the user creates or edits a task (empty for sample and generated tasks) |
+| `createdAt` | Date | |
+| `updatedAt` | Date? | extra field; set when the user creates or edits a task (empty for sample and generated tasks) |
 
-`status` and `dataAtualizacao` were not in the spec. Status is a basic part of modeling a task. The update date is needed for ordering: it is what brings a task created or edited by the user to the top of the list. Tasks generated while scrolling don't get it, so they land at the end of the list, where the infinite scroll appends them.
+`status` and `updatedAt` were not in the spec. Status is a basic part of modeling a task. The update date is needed for ordering: it is what brings a task created or edited by the user to the top of the list. Tasks generated while scrolling don't get it, so they land at the end of the list, where the infinite scroll appends them.
 
 ### Storage
 

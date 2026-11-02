@@ -51,7 +51,7 @@ async function readFromOldest() {
   let cursor = null;
 
   for (let page = 0; page < MAX_READ_PAGES; page++) {
-    const input = { limit: READ_PAGE_SIZE, cursor, orderBy: [{ field: "dataCriacao", direction: "asc" }] };
+    const input = { limit: READ_PAGE_SIZE, cursor, orderBy: [{ field: "createdAt", direction: "asc" }] };
     const { data, durationMs } = await callTrpc("query", "task.list", input);
     durations.push(durationMs);
     cursor = data.nextCursor;

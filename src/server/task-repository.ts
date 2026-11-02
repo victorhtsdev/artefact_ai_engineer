@@ -27,7 +27,7 @@ function save(task: Task): void {
   store.version++;
 }
 
-const normalizeDescricao = (descricao?: string) => descricao || undefined;
+const normalizeDescription = (description?: string) => description || undefined;
 
 // Sorting every task on each read is the expensive part; the sorted list is reused until a write bumps the version.
 let sortedTasksCache: { version: number; order: string; tasks: Task[] } | undefined;
@@ -58,13 +58,13 @@ function paginate<T extends { id: string }>(
   return { items, nextCursor: hasMore ? items[items.length - 1].id : null };
 }
 
-function buildTask({ titulo, descricao }: CreateTaskInput, createdAt: Date): Task {
+function buildTask({ title, description }: CreateTaskInput, createdAt: Date): Task {
   return {
     id: randomUUID(),
-    titulo,
-    descricao: normalizeDescricao(descricao),
+    title,
+    description: normalizeDescription(description),
     status: "pending",
-    dataCriacao: createdAt,
+    createdAt,
   };
 }
 
@@ -82,10 +82,10 @@ export const taskRepository = {
   },
 
   // A task created by the user counts as its own latest change, so it lands at the top of the list.
-  // Generated tasks (createMany) keep dataAtualizacao empty and go to the end, where infinite scroll appends them.
+  // Generated tasks (createMany) keep updatedAt empty and go to the end, where infinite scroll appends them.
   async create(input: CreateTaskInput): Promise<Task> {
     const now = new Date();
-    const task: Task = { ...buildTask(input, now), dataAtualizacao: now };
+    const task: Task = { ...buildTask(input, now), updatedAt: now };
     save(task);
     return task;
   },
@@ -99,16 +99,16 @@ export const taskRepository = {
     return created;
   },
 
-  async update({ id, titulo, descricao, status }: UpdateTaskInput): Promise<Task | undefined> {
+  async update({ id, title, description, status }: UpdateTaskInput): Promise<Task | undefined> {
     const existing = store.tasks.get(id);
     if (!existing) return undefined;
 
     const updated: Task = {
       ...existing,
-      titulo,
-      descricao: normalizeDescricao(descricao),
+      title,
+      description: normalizeDescription(description),
       status,
-      dataAtualizacao: new Date(),
+      updatedAt: new Date(),
     };
     save(updated);
     return updated;

@@ -9,14 +9,14 @@ export function createDemoTasks(): Task[] {
   const now = Date.now();
 
   return Array.from({ length: DEMO_TASK_COUNT }, (_, index) => {
-    const dataCriacao = new Date(now - (DEMO_TASK_COUNT - index) * ONE_HOUR_IN_MS);
+    const createdAt = new Date(now - (DEMO_TASK_COUNT - index) * ONE_HOUR_IN_MS);
 
     return {
       id: randomUUID(),
-      titulo: `Sample task ${index + 1}`,
-      descricao: index % 3 === 0 ? undefined : `Fictional description of task ${index + 1}.`,
+      title: `Sample task ${index + 1}`,
+      description: index % 3 === 0 ? undefined : `Fictional description of task ${index + 1}.`,
       status: TASK_STATUSES[index % TASK_STATUSES.length],
-      dataCriacao,
+      createdAt,
     };
   });
 }
@@ -25,8 +25,8 @@ export function createGeneratedTaskInputs(count: number, startNumber: number): C
   return Array.from({ length: count }, (_, index) => {
     const number = startNumber + index;
     return {
-      titulo: `Generated task ${number}`,
-      descricao: `Created automatically while scrolling (#${number}).`,
+      title: `Generated task ${number}`,
+      description: `Created automatically while scrolling (#${number}).`,
     };
   });
 }

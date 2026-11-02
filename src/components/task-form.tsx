@@ -32,8 +32,8 @@ export function TaskForm({ task }: { task?: Task }) {
   } = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
-      titulo: task?.titulo ?? "",
-      descricao: task?.descricao ?? "",
+      title: task?.title ?? "",
+      description: task?.description ?? "",
       status: task?.status ?? "pending",
     },
   });
@@ -58,35 +58,35 @@ export function TaskForm({ task }: { task?: Task }) {
   const updateTask = useMutation(trpc.task.update.mutationOptions(mutationCallbacks(t("form.updated"))));
   const isSaving = createTask.isPending || updateTask.isPending;
 
-  const onSubmit = ({ titulo, descricao, status }: TaskFormValues) => {
+  const onSubmit = ({ title, description, status }: TaskFormValues) => {
     if (task) {
-      updateTask.mutate({ id: task.id, titulo, descricao, status });
+      updateTask.mutate({ id: task.id, title, description, status });
     } else {
-      createTask.mutate({ titulo, descricao });
+      createTask.mutate({ title, description });
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-      <FormField id="titulo" label={t("form.titulo")} error={errors.titulo?.message}>
+      <FormField id="title" label={t("form.title")} error={errors.title?.message}>
         <input
-          id="titulo"
+          id="title"
           autoFocus
-          aria-invalid={!!errors.titulo}
-          aria-describedby={errors.titulo ? "titulo-error" : undefined}
+          aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? "title-error" : undefined}
           className={inputClassName}
-          {...register("titulo")}
+          {...register("title")}
         />
       </FormField>
 
-      <FormField id="descricao" label={t("form.descricao")} error={errors.descricao?.message}>
+      <FormField id="description" label={t("form.description")} error={errors.description?.message}>
         <textarea
-          id="descricao"
+          id="description"
           rows={4}
-          aria-invalid={!!errors.descricao}
-          aria-describedby={errors.descricao ? "descricao-error" : undefined}
+          aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? "description-error" : undefined}
           className={inputClassName}
-          {...register("descricao")}
+          {...register("description")}
         />
       </FormField>
 

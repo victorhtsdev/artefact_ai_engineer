@@ -1,13 +1,13 @@
 import type { Task, TaskOrderBy, TaskSortCriterion, TaskSortField } from "@/schemas/task";
 
-export type TaskKey = Pick<Task, "id" | "titulo" | "dataCriacao" | "dataAtualizacao">;
+export type TaskKey = Pick<Task, "id" | "title" | "createdAt" | "updatedAt">;
 
 const titleCollator = new Intl.Collator("pt-BR", { numeric: true, sensitivity: "base" });
 
 const sortValue: Record<TaskSortField, (key: TaskKey) => number | string | undefined> = {
-  dataAtualizacao: (key) => key.dataAtualizacao?.getTime(),
-  dataCriacao: (key) => key.dataCriacao.getTime(),
-  titulo: (key) => key.titulo,
+  updatedAt: (key) => key.updatedAt?.getTime(),
+  createdAt: (key) => key.createdAt.getTime(),
+  title: (key) => key.title,
 };
 
 function compareValues(a: number | string, b: number | string): number {

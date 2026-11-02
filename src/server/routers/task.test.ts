@@ -30,17 +30,17 @@ async function errorOf(promise: Promise<unknown>) {
 }
 
 describe("task.create", () => {
-  it("creates a pending task with a trimmed title and dataAtualizacao equal to dataCriacao", async () => {
-    const task = await api.task.create({ titulo: "  Buy bread  ", descricao: "" });
+  it("creates a pending task with a trimmed title and updatedAt equal to createdAt", async () => {
+    const task = await api.task.create({ title: "  Buy bread  ", description: "" });
 
-    expect(task).toMatchObject({ titulo: "Buy bread", descricao: undefined, status: "pending" });
-    expect(task.dataCriacao).toBeInstanceOf(Date);
-    expect(task.dataAtualizacao).toEqual(task.dataCriacao);
+    expect(task).toMatchObject({ title: "Buy bread", description: undefined, status: "pending" });
+    expect(task.createdAt).toBeInstanceOf(Date);
+    expect(task.updatedAt).toEqual(task.createdAt);
   });
 
   it("puts the new task at the top of the list, above generated ones", async () => {
     await api.task.generateBatch({ count: 15 });
-    const created = await api.task.create({ titulo: "My task" });
+    const created = await api.task.create({ title: "My task" });
 
     const { items } = await api.task.list({ limit: 10 });
 
@@ -48,25 +48,25 @@ describe("task.create", () => {
   });
 
   it("rejects an empty or too long title", async () => {
-    expect(await errorOf(api.task.create({ titulo: "   " }))).toEqual({
+    expect(await errorOf(api.task.create({ title: "   " }))).toEqual({
       code: "BAD_REQUEST",
       messages: ["titleRequired"],
     });
-    expect(await errorOf(api.task.create({ titulo: "x".repeat(101) }))).toEqual({
+    expect(await errorOf(api.task.create({ title: "x".repeat(101) }))).toEqual({
       code: "BAD_REQUEST",
       messages: ["titleTooLong"],
     });
   });
 
   it("rejects a description longer than 500 characters", async () => {
-    const { messages } = await errorOf(api.task.create({ titulo: "Task", descricao: "x".repeat(501) }));
+    const { messages } = await errorOf(api.task.create({ title: "Task", description: "x".repeat(501) }));
     expect(messages).toEqual(["descriptionTooLong"]);
   });
 });
 
 describe("task.byId", () => {
   it("returns the task", async () => {
-    const created = await api.task.create({ titulo: "Task" });
+    const created = await api.task.create({ title: "Task" });
     expect(await api.task.byId({ id: created.id })).toEqual(created);
   });
 
@@ -77,23 +77,23 @@ describe("task.byId", () => {
 });
 
 describe("task.update", () => {
-  it("updates the fields, sets dataAtualizacao and keeps dataCriacao", async () => {
-    const created = await api.task.create({ titulo: "Task" });
+  it("updates the fields, sets updatedAt and keeps createdAt", async () => {
+    const created = await api.task.create({ title: "Task" });
     const updated = await api.task.update({
       id: created.id,
-      titulo: "Task edited",
-      descricao: "Now with a description",
+      title: "Task edited",
+      description: "Now with a description",
       status: "completed",
     });
 
-    expect(updated).toMatchObject({ titulo: "Task edited", descricao: "Now with a description", status: "completed" });
-    expect(updated.dataCriacao).toEqual(created.dataCriacao);
-    expect(updated.dataAtualizacao).toBeInstanceOf(Date);
+    expect(updated).toMatchObject({ title: "Task edited", description: "Now with a description", status: "completed" });
+    expect(updated.createdAt).toEqual(created.createdAt);
+    expect(updated.updatedAt).toBeInstanceOf(Date);
   });
 
   it("moves the edited task to the top of the list", async () => {
     const [, second] = await api.task.generateBatch({ count: 3 });
-    await api.task.update({ id: second.id, titulo: second.titulo, status: "in_progress" });
+    await api.task.update({ id: second.id, title: second.title, status: "in_progress" });
 
     const { items } = await api.task.list({ limit: 10 });
 
@@ -101,14 +101,14 @@ describe("task.update", () => {
   });
 
   it("fails with NOT_FOUND for a missing task", async () => {
-    const result = await errorOf(api.task.update({ id: MISSING_ID, titulo: "Task", status: "pending" }));
+    const result = await errorOf(api.task.update({ id: MISSING_ID, title: "Task", status: "pending" }));
     expect(result.code).toBe("NOT_FOUND");
   });
 });
 
 describe("task.delete", () => {
   it("removes the task and fails with NOT_FOUND on a second delete", async () => {
-    const created = await api.task.create({ titulo: "Task" });
+    const created = await api.task.create({ title: "Task" });
 
     expect(await api.task.delete({ id: created.id })).toEqual({ id: created.id });
     expect((await errorOf(api.task.byId({ id: created.id }))).code).toBe("NOT_FOUND");
@@ -148,11 +148,11 @@ describe("task.list", () => {
 
 describe("task.generateBatch", () => {
   it("creates the requested number of tasks, numbered in creation order", async () => {
-    await api.task.create({ titulo: "Existing" });
+    await api.task.create({ title: "Existing" });
     const created = await api.task.generateBatch({ count: 3 });
 
-    expect(created.map((task) => task.titulo)).toEqual(["Generated task 2", "Generated task 3", "Generated task 4"]);
-    expect(created.every((task) => task.dataAtualizacao === undefined)).toBe(true);
+    expect(created.map((task) => task.title)).toEqual(["Generated task 2", "Generated task 3", "Generated task 4"]);
+    expect(created.every((task) => task.updatedAt === undefined)).toBe(true);
   });
 
   it("rejects more than 50 tasks per batch", async () => {
@@ -168,13 +168,13 @@ describe("HTTP error responses", () => {
       request("task.create", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ json: { titulo: "" } }),
+        body: JSON.stringify({ json: { title: "" } }),
       }),
     );
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error.json.data).toMatchObject({ code: "BAD_REQUEST", fieldErrors: { titulo: ["titleRequired"] } });
+    expect(body.error.json.data).toMatchObject({ code: "BAD_REQUEST", fieldErrors: { title: ["titleRequired"] } });
   });
 
   it("returns 404 with the NOT_FOUND code for a missing task", async () => {
