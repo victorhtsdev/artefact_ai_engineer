@@ -1,0 +1,62 @@
+{
+  "app": {
+    "title": "Task Manager",
+    "description": "Task CRUD with Next.js and tRPC"
+  },
+  "localeSwitcher": {
+    "label": "Language"
+  },
+  "taskStatus": {
+    "pending": "Pending",
+    "in_progress": "In progress",
+    "completed": "Completed"
+  },
+  "validation": {
+    "titleRequired": "Title is required",
+    "titleTooLong": "Title must be at most 100 characters",
+    "descriptionTooLong": "Description must be at most 500 characters",
+    "invalidId": "Invalid task identifier"
+  },
+  "errors": {
+    "NOT_FOUND": "Task not found. It may have been deleted.",
+    "BAD_REQUEST": "Invalid data. Review the fields and try again.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "tasks": {
+    "new": "New task",
+    "loading": "Loading tasks...",
+    "empty": "No tasks yet.",
+    "createdAt": "Created on {date}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleted": "Task deleted.",
+    "confirmDelete": "Delete the task \"{titulo}\"?",
+    "loadingMore": "Loading more tasks...",
+    "loadMoreError": "Failed to load more tasks. Try again",
+    "updatedAt": "Updated on {date}",
+    "enterGenerateMode": "Generate tasks on scroll",
+    "exitGenerateMode": "Back to the normal list",
+    "generateModeHint": "Generate mode: new tasks are created as you scroll.",
+    "generating": "Generating new tasks...",
+    "generateError": "Failed to generate tasks. Try again"
+  },
+  "form": {
+    "createTitle": "New task",
+    "editTitle": "Edit task",
+    "titulo": "Title",
+    "descricao": "Description",
+    "status": "Status",
+    "create": "Create task",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "created": "Task created.",
+    "updated": "Task updated."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The task or page you are looking for does not exist or was deleted.",
+    "backToList": "Back to the list"
+  }
+}

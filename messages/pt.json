@@ -1,0 +1,62 @@
+{
+  "app": {
+    "title": "Gerenciador de Tarefas",
+    "description": "CRUD de tarefas com Next.js e tRPC"
+  },
+  "localeSwitcher": {
+    "label": "Idioma"
+  },
+  "taskStatus": {
+    "pending": "Pendente",
+    "in_progress": "Em andamento",
+    "completed": "Concluída"
+  },
+  "validation": {
+    "titleRequired": "O título é obrigatório",
+    "titleTooLong": "O título deve ter no máximo 100 caracteres",
+    "descriptionTooLong": "A descrição deve ter no máximo 500 caracteres",
+    "invalidId": "Identificador de tarefa inválido"
+  },
+  "errors": {
+    "NOT_FOUND": "Tarefa não encontrada. Ela pode ter sido excluída.",
+    "BAD_REQUEST": "Dados inválidos. Revise os campos e tente novamente.",
+    "generic": "Algo deu errado. Tente novamente."
+  },
+  "tasks": {
+    "new": "Nova tarefa",
+    "loading": "Carregando tarefas...",
+    "empty": "Nenhuma tarefa cadastrada.",
+    "createdAt": "Criada em {date}",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "deleting": "Excluindo...",
+    "deleted": "Tarefa excluída.",
+    "confirmDelete": "Excluir a tarefa \"{titulo}\"?",
+    "loadingMore": "Carregando mais tarefas...",
+    "loadMoreError": "Erro ao carregar mais tarefas. Tentar novamente",
+    "updatedAt": "Atualizada em {date}",
+    "enterGenerateMode": "Gerar tarefas ao rolar",
+    "exitGenerateMode": "Voltar à lista normal",
+    "generateModeHint": "Modo geração: novas tarefas são criadas conforme você rola.",
+    "generating": "Gerando novas tarefas...",
+    "generateError": "Erro ao gerar tarefas. Tentar novamente"
+  },
+  "form": {
+    "createTitle": "Nova tarefa",
+    "editTitle": "Editar tarefa",
+    "titulo": "Título",
+    "descricao": "Descrição",
+    "status": "Status",
+    "create": "Criar tarefa",
+    "save": "Salvar alterações",
+    "saving": "Salvando...",
+    "cancel": "Cancelar",
+    "created": "Tarefa criada.",
+    "updated": "Tarefa atualizada."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A tarefa ou página que você procura não existe ou foi excluída.",
+    "backToList": "Voltar para a lista"
+  }
+}

@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      SEED_DEMO_DATA: "true"
+      METRICS_INTERVAL_MS: "10000"
+    restart: unless-stopped

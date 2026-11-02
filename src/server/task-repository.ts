@@ -1,0 +1,113 @@
+import "server-only";
+import { randomUUID } from "node:crypto";
+import type { CreateTaskInput, ListTasksInput, Task, TaskOrderBy, TaskPage, UpdateTaskInput } from "@/schemas/task";
+import { createDemoTasks } from "@/server/demo-data";
+import { registerTaskCount } from "@/server/metrics";
+import { compareTaskKeys } from "@/server/task-ordering";
+
+type TaskStore = {
+  tasks: Map<string, Task>;
+  version: number;
+};
+
+function createStore(): TaskStore {
+  const initialTasks = process.env.SEED_DEMO_DATA === "true" ? createDemoTasks() : [];
+  return { tasks: new Map(initialTasks.map((task) => [task.id, task])), version: 0 };
+}
+
+const globalForTasks = globalThis as unknown as { taskStore?: TaskStore };
+const store = (globalForTasks.taskStore ??= createStore());
+
+registerTaskCount(() => store.tasks.size);
+
+function save(task: Task): void {
+  store.tasks.set(task.id, task);
+  store.version++;
+}
+
+const normalizeDescricao = (descricao?: string) => descricao || undefined;
+
+let sortedTasksCache: { version: number; order: string; tasks: Task[] } | undefined;
+
+function getSortedTasks(orderBy: TaskOrderBy): Task[] {
+  const order = JSON.stringify(orderBy);
+  if (sortedTasksCache?.version === store.version && sortedTasksCache.order === order) {
+    return sortedTasksCache.tasks;
+  }
+
+  const tasks = [...store.tasks.values()].sort((a, b) => compareTaskKeys(a, b, orderBy));
+  sortedTasksCache = { version: store.version, order, tasks };
+  return tasks;
+}
+
+function paginate<T extends { id: string }>(
+  list: T[],
+  { limit, cursor }: Pick<ListTasksInput, "limit" | "cursor">,
+): { items: T[]; nextCursor: string | null } {
+  const start = cursor ? list.findIndex((item) => item.id === cursor) + 1 : 0;
+  if (cursor && start === 0) return { items: [], nextCursor: null };
+
+  const items = list.slice(start, start + limit);
+  const hasMore = start + limit < list.length;
+
+  return { items, nextCursor: hasMore ? items[items.length - 1].id : null };
+}
+
+function buildTask({ titulo, descricao }: CreateTaskInput, createdAt: Date): Task {
+  return {
+    id: randomUUID(),
+    titulo,
+    descricao: normalizeDescricao(descricao),
+    status: "pending",
+    dataCriacao: createdAt,
+  };
+}
+
+export const taskRepository = {
+  async list({ limit, cursor, orderBy }: ListTasksInput): Promise<TaskPage> {
+    return paginate(getSortedTasks(orderBy), { limit, cursor });
+  },
+
+  async count(): Promise<number> {
+    return store.tasks.size;
+  },
+
+  async findById(id: string): Promise<Task | undefined> {
+    return store.tasks.get(id);
+  },
+
+  async create(input: CreateTaskInput): Promise<Task> {
+    const task = buildTask(input, new Date());
+    save(task);
+    return task;
+  },
+
+  async createMany(inputs: CreateTaskInput[]): Promise<Task[]> {
+    const now = Date.now();
+    const created = inputs.map((input, index) => buildTask(input, new Date(now + index)));
+    for (const task of created) store.tasks.set(task.id, task);
+    store.version++;
+    return created;
+  },
+
+  async update({ id, titulo, descricao, status }: UpdateTaskInput): Promise<Task | undefined> {
+    const existing = store.tasks.get(id);
+    if (!existing) return undefined;
+
+    const updated: Task = {
+      ...existing,
+      titulo,
+      descricao: normalizeDescricao(descricao),
+      status,
+      dataAtualizacao: new Date(),
+    };
+    save(updated);
+    return updated;
+  },
+
+  async remove(id: string): Promise<boolean> {
+    if (!store.tasks.delete(id)) return false;
+    store.version++;
+    return true;
+  },
+};
