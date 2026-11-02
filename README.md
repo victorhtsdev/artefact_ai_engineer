@@ -41,18 +41,31 @@ Já configuradas no `docker-compose.yml`:
 
 | | |
 |---|---|
-| **Listagem com SSR**: a primeira página já vem no HTML; o resto carrega ao rolar (infinite scroll) | **Validação** no cliente e no servidor, com mensagens por campo |
+| **Listagem com SSR**: a primeira página já vem no HTML | **Validação** no cliente e no servidor, com mensagem por campo |
 | ![Lista](docs/screenshots/01-lista.png) | ![Validação](docs/screenshots/02-validacao.png) |
-| **Edição** com status (pendente, em andamento, concluída) | **Feedback** de cada ação (toasts) e estados de carregamento |
-| ![Edição](docs/screenshots/04-edicao.png) | ![Exclusão](docs/screenshots/05-excluida.png) |
-| **Português e inglês**: seletor PT \| EN no canto superior direito | **Tarefa inexistente**: página 404 amigável |
-| ![Inglês](docs/screenshots/07-ingles.png) | ![Não encontrada](docs/screenshots/08-nao-encontrada.png) |
+| **Criação** com confirmação; a tarefa nova entra no fim da lista | **Edição** de título, descrição e status |
+| ![Criação](docs/screenshots/03-criada.png) | ![Edição](docs/screenshots/04-edicao.png) |
+| **Exclusão** com confirmação e aviso de sucesso ou erro | **Tarefa inexistente**: página 404 |
+| ![Exclusão](docs/screenshots/05-excluida.png) | ![Não encontrada](docs/screenshots/08-nao-encontrada.png) |
 
-**Ordenação da lista:** tarefas editadas primeiro (a editada mais recentemente no topo), depois as nunca editadas, da mais antiga para a mais nova.
+A lista mostra primeiro as tarefas editadas (a mais recente no topo) e depois as nunca editadas, da mais antiga para a mais nova. A interface está em português e inglês (seletor PT | EN no canto superior direito).
 
-**Modo geração** (`/?mode=generate`, link "Gerar tarefas ao rolar"): ao rolar até o fim, novas tarefas são criadas no servidor em lotes de 20. Foi usado para testar a aplicação com milhares de tarefas.
+## Infinite scroll (bônus)
+
+A listagem carrega 10 tarefas por vez conforme a página é rolada, atendendo ao bônus de infinite scroll do enunciado. A paginação é por cursor, e a primeira página já vem renderizada pelo servidor.
+
+Para testar a rolagem com volume, existe um modo que cria tarefas no servidor enquanto a página é rolada: `/?mode=generate` (link "Gerar tarefas ao rolar").
 
 ![Modo geração](docs/screenshots/06-modo-geracao.png)
+
+### Análise de performance
+
+No modo geração, a rolagem ficava mais lenta à medida que a lista crescia. Para achar a causa, foram feitos dois testes, detalhados em [test/README.md](test/README.md):
+
+- **Servidor** (`npm run test:stress`): 100 mil tarefas criadas e lidas pela API. As respostas ficaram em poucos milissegundos do início ao fim; não houve gargalo na carga testada.
+- **Cliente** (`npm run test:perf`): um navegador automatizado rolando a página. O gargalo estava aqui: com todas as tarefas no DOM, a página passava a maior parte do tempo travada a partir de ~2 mil tarefas.
+
+A solução foi virtualizar a lista com `@tanstack/react-virtual`, que mantém no DOM só as tarefas visíveis. A lista passou a chegar a 10 mil tarefas em 90 s; a versão anterior parou em 7.545 depois de 5 minutos.
 
 ## Como funciona
 
@@ -94,17 +107,15 @@ Páginas (React)                             Server Components (SSR)
 | `id` | UUID | gerado no servidor |
 | `titulo` | string | obrigatório |
 | `descricao` | string? | opcional |
-| `status` | `pending` \| `in_progress` \| `completed` | |
+| `status` | `pending` \| `in_progress` \| `completed` | campo extra |
 | `dataCriacao` | Date | |
-| `dataAtualizacao` | Date? | vazia até a primeira edição |
+| `dataAtualizacao` | Date? | campo extra; vazia até a primeira edição |
+
+`status` e `dataAtualizacao` não estavam no enunciado. O status é parte básica da modelagem de uma tarefa. A data de atualização foi necessária para a ordenação: é ela que leva a tarefa editada para o topo da lista.
 
 ### Armazenamento
 
-As tarefas ficam **em memória** (um `Map` indexado pelo id), como pede o enunciado, atrás de um repositório (`src/server/task-repository.ts`). O resto da aplicação só conhece o repositório, então trocar por um banco de dados não afetaria rotas nem telas. A lista ordenada fica em cache e só é recalculada quando alguma tarefa é criada, editada ou excluída. Um teste de stress com 100 mil tarefas manteve as respostas em poucos milissegundos (ver [test/README.md](test/README.md)).
-
-### Lista virtualizada
-
-A lista renderiza apenas as tarefas visíveis na tela (`@tanstack/react-virtual`), então o custo de exibir 10 ou 10 mil tarefas é o mesmo. A decisão foi tomada com base em testes de performance: ver [test/README.md](test/README.md).
+As tarefas ficam **em memória** (um `Map` indexado pelo id), como pede o enunciado, atrás de um repositório (`src/server/task-repository.ts`). O resto da aplicação só conhece o repositório, então trocar por um banco de dados não afetaria rotas nem telas. A lista ordenada fica em cache e só é recalculada quando alguma tarefa é criada, editada ou excluída.
 
 ### Métricas no servidor
 
